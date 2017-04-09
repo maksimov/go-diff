@@ -15,6 +15,7 @@ import (
 	"html"
 	"math"
 	"net/url"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -476,6 +477,23 @@ func commonSuffixLength(text1, text2 []rune) int {
 	   }
 	   return pointermid
 	*/
+}
+func commonSuffixLengthBin(text1, text2 []rune) int {
+	pointermin := 0
+	pointermax := min(len(text1), len(text2))
+	pointermid := pointermax
+	pointerend := 0
+	for pointermin < pointermid {
+		if reflect.DeepEqual(text1[len(text1)-pointermid:len(text1)-pointerend],
+			text2[len(text2)-pointermid:len(text2)-pointerend]) {
+			pointermin = pointermid
+			pointerend = pointermin
+		} else {
+			pointermax = pointermid
+		}
+		pointermid = int(math.Floor(float64((pointermax-pointermin)/2 + pointermin)))
+	}
+	return pointermid
 }
 
 // DiffCommonOverlap determines if the suffix of one string is the prefix of another.

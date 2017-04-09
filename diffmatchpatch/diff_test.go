@@ -11,6 +11,7 @@ package diffmatchpatch
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
 	"testing"
@@ -1424,4 +1425,37 @@ func BenchmarkDiffMainRunesLargeLines(b *testing.B) {
 		diffs := dmp.DiffMainRunes(text1, text2, false)
 		diffs = dmp.DiffCharsToLines(diffs, linearray)
 	}
+}
+
+var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randSeq(n int) []rune {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return b
+}
+
+var s1, s2 []rune
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+	s1 = randSeq(rand.Intn(10000))
+	n := rand.Intn(len(s1))
+	s2 = append(s1[:n], '\t')
+	s2 = append(s2, s1[n+1:]...)
+}
+
+func BenchmarkCommonSuffixLength(b *testing.B) {
+	b.Run("Linear", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			commonSuffixLength(s1, s2)
+		}
+	})
+	b.Run("Binary", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			commonSuffixLengthBin(s1, s2)
+		}
+	})
 }
